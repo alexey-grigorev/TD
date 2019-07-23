@@ -133,7 +133,7 @@ def write_config(MODEL_NAME):
     
         eval_input_reader: {
           tf_record_input_reader {
-            input_path: "%(ANNOTATIONS_DIR)s/test.record"
+            input_path: "%(ANNOTATIONS_DIR)s/val.record"
           }
           label_map_path: "%(ANNOTATIONS_DIR)s/label_map.pbtxt"
           shuffle: false
