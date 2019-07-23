@@ -95,18 +95,6 @@ def write_config(MODEL_NAME):
               learning_rate {
                 manual_step_learning_rate {
                   initial_learning_rate: 0.000300000014249
-                  schedule {
-                    step: 0
-                    learning_rate: 0.000300000014249
-                  }
-                  schedule {
-                    step: 900000
-                    learning_rate: 2.99999992421e-05
-                  }
-                  schedule {
-                    step: 1200000
-                    learning_rate: 3.00000010611e-06
-                  }
                 }
               }
               momentum_optimizer_value: 0.899999976158
