@@ -5,7 +5,7 @@ def write_config(MODEL_NAME):
     config = ("""
         model {
           faster_rcnn {
-            num_classes: 1
+            num_classes: 90
             image_resizer {
               keep_aspect_ratio_resizer {
                 min_dimension: 600
@@ -13,20 +13,15 @@ def write_config(MODEL_NAME):
               }
             }
             feature_extractor {
-              type: "faster_rcnn_resnet50"
+              type: 'faster_rcnn_resnet50'
               first_stage_features_stride: 16
             }
             first_stage_anchor_generator {
               grid_anchor_generator {
+                scales: [0.25, 0.5, 1.0, 2.0]
+                aspect_ratios: [0.5, 1.0, 2.0]
                 height_stride: 16
                 width_stride: 16
-                scales: 0.25
-                scales: 0.5
-                scales: 1.0
-                scales: 2.0
-                aspect_ratios: 0.5
-                aspect_ratios: 1.0
-                aspect_ratios: 2.0
               }
             }
             first_stage_box_predictor_conv_hyperparams {
@@ -38,13 +33,13 @@ def write_config(MODEL_NAME):
               }
               initializer {
                 truncated_normal_initializer {
-                  stddev: 0.00999999977648
+                  stddev: 0.01
                 }
               }
             }
             first_stage_nms_score_threshold: 0.0
-            first_stage_nms_iou_threshold: 0.699999988079
-            first_stage_max_proposals: 100
+            first_stage_nms_iou_threshold: 0.7
+            first_stage_max_proposals: 300
             first_stage_localization_loss_weight: 2.0
             first_stage_objectness_loss_weight: 1.0
             initial_crop_size: 14
@@ -52,6 +47,8 @@ def write_config(MODEL_NAME):
             maxpool_stride: 2
             second_stage_box_predictor {
               mask_rcnn_box_predictor {
+                use_dropout: false
+                dropout_keep_probability: 1.0
                 fc_hyperparams {
                   op: FC
                   regularizer {
@@ -67,16 +64,14 @@ def write_config(MODEL_NAME):
                     }
                   }
                 }
-                use_dropout: false
-                dropout_keep_probability: 1.0
               }
             }
             second_stage_post_processing {
               batch_non_max_suppression {
-                score_threshold: 0.300000011921
-                iou_threshold: 0.600000023842
+                score_threshold: 0.0
+                iou_threshold: 0.6
                 max_detections_per_class: 100
-                max_total_detections: 100
+                max_total_detections: 300
               }
               score_converter: SOFTMAX
             }
@@ -84,46 +79,61 @@ def write_config(MODEL_NAME):
             second_stage_classification_loss_weight: 1.0
           }
         }
-        train_config {
+
+        train_config: {
           batch_size: 1
-          data_augmentation_options {
-            random_horizontal_flip {
-            }
-          }
           optimizer {
-            momentum_optimizer {
-              learning_rate {
+            momentum_optimizer: {
+              learning_rate: {
                 manual_step_learning_rate {
-                  initial_learning_rate: 0.000300000014249
+                  initial_learning_rate: 0.0003
+                  schedule {
+                    step: 900000
+                    learning_rate: .00003
+                  }
+                  schedule {
+                    step: 1200000
+                    learning_rate: .000003
+                  }
                 }
               }
-              momentum_optimizer_value: 0.899999976158
+              momentum_optimizer_value: 0.9
             }
             use_moving_average: false
           }
           gradient_clipping_by_norm: 10.0
           fine_tune_checkpoint: "%(CHECKPOINT_FILE)s/model.ckpt"
           from_detection_checkpoint: true
+          # Note: The below line limits the training process to 200K steps, which we
+          # empirically found to be sufficient enough to train the pets dataset. This
+          # effectively bypasses the learning rate schedule (the learning rate will
+          # never decay). Remove the below line to train indefinitely.
           num_steps: 200000
+          data_augmentation_options {
+            random_horizontal_flip {
+            }
+          }
         }
+
         train_input_reader: {
           tf_record_input_reader {
-            input_path: "%(ANNOTATIONS_DIR)s/train.record"
+            input_path: "(ANNOTATIONS_DIR)s/train.record"
           }
-          label_map_path: "%(ANNOTATIONS_DIR)s/label_map.pbtxt"
+          label_map_path: "(ANNOTATIONS_DIR)s/label_map.pbtxt"
         }
-    
+
         eval_config: {
           num_examples: 8000
+          # Note: The below line limits the evaluation process to 10 evaluations.
+          # Remove the below line to evaluate indefinitely.
           max_evals: 10
-          use_moving_averages: false
         }
-    
+
         eval_input_reader: {
           tf_record_input_reader {
-            input_path: "%(ANNOTATIONS_DIR)s/val.record"
+            input_path: "(ANNOTATIONS_DIR)s/val.record"
           }
-          label_map_path: "%(ANNOTATIONS_DIR)s/label_map.pbtxt"
+          label_map_path: "(ANNOTATIONS_DIR)s/label_map.pbtxt"
           shuffle: false
           num_readers: 1
         }
