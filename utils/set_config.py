@@ -117,9 +117,9 @@ def write_config(MODEL_NAME):
 
         train_input_reader: {
           tf_record_input_reader {
-            input_path: "(ANNOTATIONS_DIR)s/train.record"
+            input_path: "%(ANNOTATIONS_DIR)s/train.record"
           }
-          label_map_path: "(ANNOTATIONS_DIR)s/label_map.pbtxt"
+          label_map_path: "%(ANNOTATIONS_DIR)s/label_map.pbtxt"
         }
 
         eval_config: {
@@ -131,9 +131,9 @@ def write_config(MODEL_NAME):
 
         eval_input_reader: {
           tf_record_input_reader {
-            input_path: "(ANNOTATIONS_DIR)s/val.record"
+            input_path: "%(ANNOTATIONS_DIR)s/val.record"
           }
-          label_map_path: "(ANNOTATIONS_DIR)s/label_map.pbtxt"
+          label_map_path: "%(ANNOTATIONS_DIR)s/label_map.pbtxt"
           shuffle: false
           num_readers: 1
         }
