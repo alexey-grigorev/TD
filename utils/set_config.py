@@ -5,7 +5,7 @@ def write_config(MODEL_NAME):
     config = ("""
         model {
           faster_rcnn {
-            num_classes: 90
+            num_classes: 1
             image_resizer {
               keep_aspect_ratio_resizer {
                 min_dimension: 600
