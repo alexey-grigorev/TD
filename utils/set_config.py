@@ -127,6 +127,7 @@ def write_config(MODEL_NAME):
           # Note: The below line limits the evaluation process to 10 evaluations.
           # Remove the below line to evaluate indefinitely.
           max_evals: 10
+          eval_interval_secs: 1800
         }
 
         eval_input_reader: {
