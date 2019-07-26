@@ -1,7 +1,7 @@
 import os
 
 
-def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
+def write_config(MODEL_NAME):
     config = ("""
         model {
           faster_rcnn {
@@ -79,7 +79,6 @@ def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
             second_stage_classification_loss_weight: 1.0
           }
         }
-
         train_config: {
           batch_size: 1
           optimizer {
@@ -102,7 +101,7 @@ def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
             use_moving_average: false
           }
           gradient_clipping_by_norm: 10.0
-          fine_tune_checkpoint: "%(CHECKPOINT_FILE)s/%(MODEL_VERSION_FILE)s"
+          fine_tune_checkpoint: "%(CHECKPOINT_FILE)s/model.ckpt"
           from_detection_checkpoint: true
           # Note: The below line limits the training process to 200K steps, which we
           # empirically found to be sufficient enough to train the pets dataset. This
@@ -114,14 +113,12 @@ def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
             }
           }
         }
-
         train_input_reader: {
           tf_record_input_reader {
             input_path: "%(ANNOTATIONS_DIR)s/train.record"
           }
           label_map_path: "%(ANNOTATIONS_DIR)s/label_map.pbtxt"
         }
-
         eval_config: {
           num_examples: 8000
           # Note: The below line limits the evaluation process to 10 evaluations.
@@ -129,7 +126,6 @@ def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
           max_evals: 10
           eval_interval_secs: 1800
         }
-
         eval_input_reader: {
           tf_record_input_reader {
             input_path: "%(ANNOTATIONS_DIR)s/val.record"
@@ -141,7 +137,6 @@ def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
         """ % {
             'CHECKPOINT_FILE': os.path.join('/content', 'frozen_model', MODEL_NAME),
             'ANNOTATIONS_DIR': os.path.join('/content', 'data_dir', 'annotations'),
-            'MODEL_VERSION_FILE': MODEL_VERSION,
         }
     )
     config_path = os.path.join('/content', 'data_dir', 'tf_api.config')
