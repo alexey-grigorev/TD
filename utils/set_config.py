@@ -1,7 +1,7 @@
 import os
 
 
-def write_config(MODEL_NAME):
+def write_config(MODEL_NAME, MODEL_VERSION='model.ckpt'):
     config = ("""
         model {
           faster_rcnn {
@@ -102,7 +102,7 @@ def write_config(MODEL_NAME):
             use_moving_average: false
           }
           gradient_clipping_by_norm: 10.0
-          fine_tune_checkpoint: "%(CHECKPOINT_FILE)s/model.ckpt"
+          fine_tune_checkpoint: "%(CHECKPOINT_FILE)s/%(MODEL_VERSION_FILE)s"
           from_detection_checkpoint: true
           # Note: The below line limits the training process to 200K steps, which we
           # empirically found to be sufficient enough to train the pets dataset. This
@@ -141,6 +141,7 @@ def write_config(MODEL_NAME):
         """ % {
             'CHECKPOINT_FILE': os.path.join('/content', 'frozen_model', MODEL_NAME),
             'ANNOTATIONS_DIR': os.path.join('/content', 'data_dir', 'annotations'),
+            'MODEL_VERSION_FILE': MODEL_VERSION,
         }
     )
     config_path = os.path.join('/content', 'data_dir', 'tf_api.config')
